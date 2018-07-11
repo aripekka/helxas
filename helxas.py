@@ -15,6 +15,9 @@ class HelXAS:
         self.datapath = datapath
         self.datafile = datafile
 
+        self.scan_groups = {}
+        self.scan_groups['direct_beam'] = {'signal' : None, 'background' : None}
+
     def scintillator_dead_time_correction(self, counts, counting_time):
         '''
         Corrects the signal measured with scintillator for the dead time
@@ -58,24 +61,27 @@ class HelXAS:
 
         return scans
 
+    def set_background_fit_order():
+        pass
     def read_I0(self,signal_scan_numbers,background_scan_numbers,tube_current=10):
         '''
         Loads the measured I0 scans into the memory
         '''
         specfile = SpecFile(os.path.join(self.datapath,self.datafile))
-        self.direct_beam = self._read_scans(specfile,signal_scan_numbers)
-        self.direct_beam_bg = self._read_scans(specfile,background_scan_numbers)
+        self.scan_groups['direct_beam']['signal'] = self._read_scans(specfile,signal_scan_numbers)
+        self.scan_groups['direct_beam']['background'] = self._read_scans(specfile,background_scan_numbers)
 
-        self.direct_beam['tube_current'] = tube_current
-        self.direct_beam_bg['tube_current'] = tube_current
+        self.scan_groups['direct_beam']['signal']['tube_current'] = tube_current
+        self.scan_groups['direct_beam']['background']['tube_current'] = tube_current
 
-    def read_I(self,signal_scan_numbers,background_scan_numbers,tube_current=10):
+    def read_I(self,sample_str,signal_scan_numbers,background_scan_numbers,tube_current=10):
         '''
         Loads the measured I scans into the memory
         '''
         specfile = SpecFile(os.path.join(self.datapath,self.datafile))
-        self.transmitted_beam = self._read_scans(specfile,signal_scan_numbers)
-        self.transmitted_beam_bg = self._read_scans(specfile,background_scan_numbers)
+        self.scan_groups[sample_str] = {}
+        self.scan_groups[sample_str]['signal'] = self._read_scans(specfile,signal_scan_numbers)
+        self.scan_groups[sample_str]['background'] = self._read_scans(specfile,background_scan_numbers)
 
-        self.transmitted_beam['tube_current'] = tube_current
-        self.transmitted_beam_bg['tube_current'] = tube_current
+        self.scan_groups[sample_str]['signal']['tube_current'] = tube_current
+        self.scan_groups[sample_str]['background']['tube_current'] = tube_current
