@@ -5,6 +5,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 from silx.io.specfile import SpecFile
 
+def energy(th,xtal,hkl):
+    hc = 1239.842
+    if xtal == 'si':
+        d = 0.5431
+    refl = np.sqrt(np.sum(hkl[0]**2+hkl[1]**2+hkl[2]**2))
+    return hc/(2*d*np.sin(np.radians(th)))*refl
+
+def theta(energy,xtal,hkl):
+    hc = 1239.842
+    if xtal == 'si':
+        d = 0.5431
+    refl = np.sqrt(np.sum(hkl[0]**2+hkl[1]**2+hkl[2]**2))
+    return np.degrees(np.arcsin(hc/(2*d*energy)*refl))
+
 class HelXAS:
     '''
     Class for reading and refining the raw data acquired with HelXAS
