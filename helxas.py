@@ -58,12 +58,24 @@ class HelXAS:
 
         return scans
 
-    def read_I0(self,signal_scan_numbers,background_scan_numbers):
+    def read_I0(self,signal_scan_numbers,background_scan_numbers,tube_current=10):
         '''
         Loads the measured I0 scans into the memory
         '''
-
         specfile = SpecFile(os.path.join(self.datapath,self.datafile))
-
         self.direct_beam = self._read_scans(specfile,signal_scan_numbers)
         self.direct_beam_bg = self._read_scans(specfile,background_scan_numbers)
+
+        self.direct_beam['tube_current'] = tube_current
+        self.direct_beam_bg['tube_current'] = tube_current
+
+    def read_I(self,signal_scan_numbers,background_scan_numbers,tube_current=10):
+        '''
+        Loads the measured I scans into the memory
+        '''
+        specfile = SpecFile(os.path.join(self.datapath,self.datafile))
+        self.transmitted_beam = self._read_scans(specfile,signal_scan_numbers)
+        self.transmitted_beam_bg = self._read_scans(specfile,background_scan_numbers)
+
+        self.transmitted_beam['tube_current'] = tube_current
+        self.transmitted_beam_bg['tube_current'] = tube_current
