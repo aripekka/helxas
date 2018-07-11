@@ -18,7 +18,19 @@ class HelXAS:
 
         self.scan_groups = {}
         self.background_fit_order = 2
+
+        self.analyser = None
         #self.scan_groups['direct_beam'] = {'signal' : None, 'background' : None}
+
+    def set_analyser(self, crystal_str, hkl):
+        '''
+        Set the analyser crystal.
+        Input:
+            crystal_str = only 'si' is now supported
+            hkl = either [h,k,l], or 'hkl' if only single digit indices
+        '''
+        self.analyser = (crystal_str.lower(),(int(hkl[0]),int(hkl[1]),int(hkl[2])))
+
 
     def scintillator_dead_time_correction(self, counts, counting_time):
         '''
