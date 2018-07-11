@@ -34,6 +34,7 @@ class HelXAS:
         self.background_fit_order = 2
 
         self.analyser = None
+        self.theta_calibration = 0
         #self.scan_groups['direct_beam'] = {'signal' : None, 'background' : None}
 
     def set_analyser(self, crystal_str, hkl):
@@ -140,7 +141,7 @@ class HelXAS:
         self.scan_groups[sample_str]['background']['tube_current'] = tube_current
 
 
-    def get_spectrum(self,sample_str,x_scale = 'theta'):
+    def get_spectrum(self,sample_str,x_scale = 'energy'):
 
         #normalize the signals to the tube current
         direct_beam = self.scan_groups['direct_beam']
@@ -169,7 +170,6 @@ class HelXAS:
         mux_error = np.sqrt((I0_err/I0)**2 + (I_err/I)**2)
 
         if x_scale == 'theta':
-            return theta, mux, mux_error
+            return theta+theta_calibration, mux, mux_error
         else:
-            print('ERROR! Energy scale not implemented yet!')
-            return
+            return energy(theta+theta_calibration,*self.analyser), mux, mux_error
