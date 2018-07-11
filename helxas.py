@@ -2,6 +2,7 @@ from __future__ import division, print_function
 import os
 
 import numpy as np
+import matplotlib.pyplot as plt
 from silx.io.specfile import SpecFile
 
 class HelXAS:
@@ -16,7 +17,8 @@ class HelXAS:
         self.datafile = datafile
 
         self.scan_groups = {}
-        self.scan_groups['direct_beam'] = {'signal' : None, 'background' : None}
+        self.background_fit_order = 2
+        #self.scan_groups['direct_beam'] = {'signal' : None, 'background' : None}
 
     def scintillator_dead_time_correction(self, counts, counting_time):
         '''
@@ -61,13 +63,31 @@ class HelXAS:
 
         return scans
 
-    def set_background_fit_order():
-        pass
+    def set_background_fit_order(self,order,plot=False):
+
+        self.background_fit_order = order
+
+        if plot:
+            for key in self.scan_groups:
+                th = self.scan_groups[key]['background']['theta']
+                I = self.scan_groups[key]['background']['intensity']
+                p = np.polyfit(th,I,self.background_fit_order)
+
+                plt.plot(th,I,'o',label=key)
+                plt.plot(th,np.polyval(p,th),'k')
+
+            plt.title('Polynomial background fit of order '+str(self.background_fit_order))
+            plt.xlabel('Theta (deg)')
+            plt.ylabel('Intensity (counts/s)')
+            plt.legend()
+            plt.show()
+
     def read_I0(self,signal_scan_numbers,background_scan_numbers,tube_current=10):
         '''
         Loads the measured I0 scans into the memory
         '''
         specfile = SpecFile(os.path.join(self.datapath,self.datafile))
+        self.scan_groups['direct_beam'] = {}
         self.scan_groups['direct_beam']['signal'] = self._read_scans(specfile,signal_scan_numbers)
         self.scan_groups['direct_beam']['background'] = self._read_scans(specfile,background_scan_numbers)
 
