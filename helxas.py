@@ -35,7 +35,7 @@ class HelXAS:
         if not len(hkl) == 3:
             print('ERROR! Invalid or ambiguous reflection!')
             return
-        
+
         self.analyser = (crystal_str.lower(),(int(hkl[0]),int(hkl[1]),int(hkl[2])))
 
 
@@ -124,3 +124,38 @@ class HelXAS:
 
         self.scan_groups[sample_str]['signal']['tube_current'] = tube_current
         self.scan_groups[sample_str]['background']['tube_current'] = tube_current
+
+
+    def get_spectrum(self,sample_str,x_scale = 'theta'):
+
+        #normalize the signals to the tube current
+        direct_beam = self.scan_groups['direct_beam']
+        sample = self.scan_groups[sample_str]
+
+        theta = direct_beam['signal']['theta']
+
+        I0 = direct_beam['signal']['intensity']/direct_beam['signal']['tube_current']
+        I0_err = direct_beam['signal']['intensity_error']/direct_beam['signal']['tube_current']
+
+        I = sample['signal']['intensity']/sample['signal']['tube_current']
+        I_err = sample['signal']['intensity_error']/sample['signal']['tube_current']
+
+        theta_I0bg = direct_beam['background']['theta']
+        theta_Ibg = sample['background']['theta']
+
+        I0_bg =  direct_beam['background']['intensity']/direct_beam['background']['tube_current']
+        I_bg =  sample['background']['intensity']/sample['background']['tube_current']
+
+        #fit backgrounds
+        p0 = np.polyfit(theta_I0bg,I0_bg,self.background_fit_order)
+        p = np.polyfit(theta_Ibg,I_bg,self.background_fit_order)
+
+        #compute mux
+        mux = -np.log((I-np.polyval(p,theta))/(I0-np.polyval(p0,theta)))
+        mux_error = np.sqrt((I0_err/I0)**2 + (I_err/I)**2)
+
+        if x_scale == 'theta':
+            return theta, mux, mux_error
+        else:
+            print('ERROR! Energy scale not implemented yet!')
+            return
