@@ -27,8 +27,15 @@ class HelXAS:
         Set the analyser crystal.
         Input:
             crystal_str = only 'si' is now supported
-            hkl = either [h,k,l], or 'hkl' if only single digit indices
+            hkl = either [h,k,l] or 'hkl' or three-digit integer if only single digit indices
         '''
+
+        if type(hkl) == int:
+            hkl = str(hkl)
+        if not len(hkl) == 3:
+            print('ERROR! Invalid or ambiguous reflection!')
+            return
+        
         self.analyser = (crystal_str.lower(),(int(hkl[0]),int(hkl[1]),int(hkl[2])))
 
 
