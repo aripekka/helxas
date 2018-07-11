@@ -170,6 +170,6 @@ class HelXAS:
         mux_error = np.sqrt((I0_err/I0)**2 + (I_err/I)**2)
 
         if x_scale == 'theta':
-            return theta+theta_calibration, mux, mux_error
+            return theta+self.theta_calibration, mux, mux_error
         else:
-            return energy(theta+theta_calibration,*self.analyser), mux, mux_error
+            return energy(theta+self.theta_calibration,*self.analyser), mux, mux_error
