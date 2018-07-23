@@ -203,10 +203,10 @@ class HelXAS:
         mca_matrix = np.zeros((mca.size,channels))
         mca_err_matrix = np.zeros((mca.size,channels))
 
-        for i in mcanos.shape[0]:
+        for i in range(mcanos.shape[0]):
             mca_spectrum = np.zeros((mca.size,1))
             mca_err = np.zeros((mca.size,1))
-            for j in mcanos.shape[1]:
+            for j in range(mcanos.shape[1]):
                 path = self.mcaprefix + '%05d' % mcanos[i,j] + self.mcasuffix
                 mca_spectrum = mca_spectrum + np.loadtxt.path
 
