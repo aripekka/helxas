@@ -26,9 +26,11 @@ class HelXAS:
 
     TAU_SCINTILLATOR = 2.8e-6 #deadtime of scintillator in microsecs
 
-    def __init__(self,datafile,datapath='/home/xasadmin/data/'):
+    def __init__(self,datafile,datapath='/home/xasadmin/data/',mcadataprefix=None,mcadatasuffix=''):
         self.datapath = datapath
         self.datafile = datafile
+        self.mcaprefix = mcadataprefix
+        self.mcasuffix = mcadatasuffix
 
         self.scan_groups = {}
         self.background_fit_order = 2
@@ -182,3 +184,42 @@ class HelXAS:
             return theta+self.theta_calibration, mux, mux_error
         else:
             return energy(theta+self.theta_calibration,*self.analyser), mux, mux_error
+
+    def get_mca(self,sample_str,normalization=None,x_scale = 'energy'):
+        '''
+        Get the mca data matrix:
+
+        Input:
+            sample_str = Either 'direct_beam' or sample_str given for read_I()
+            normalization = None, 'transmission'
+        '''
+
+        mcanos = self.scan_groups[sample_str]['signal']['mcano']
+
+        #Open a mca file to obtain the number of channels
+        mca = np.loadtxt(mcaprefix + '%05d' % mcanos[0,0] + mcasuffix)
+        channels = mca.size
+
+        mca_matrix = np.zeros((mca.size,channels))
+        mca_err_matrix = np.zeros((mca.size,channels))
+
+        for i in mcanos.shape[0]:
+            mca_spectrum = np.zeros((mca.size,1))
+            mca_err = np.zeros((mca.size,1))
+            for j in mcanos.shape[1]:
+                path = mcaprefix + '%05d' % mcanos[i,j] + mcasuffix
+                mca_spectrum = mca_spectrum + np.loadtxt.path
+
+            mca_err = np.sqrt(mca_spectrum)
+            if normalization == 'transmission':
+                I = self.scan_groups[sample_str]['signal']['counts'][i]
+                mca_spectrum = mca_spectrum/I
+                mca_err = mca_err/I
+
+            mca_matrix[i,:] = mca_spectrum.T
+            mca_err_matrix[i,:] = mca_err.T
+
+        if x_scale == 'theta':
+            return theta+self.theta_calibration, mca_matrix, mca_err_matrix
+        else:
+            return energy(theta+self.theta_calibration,*self.analyser), mca_matrix, mca_err_matrix
