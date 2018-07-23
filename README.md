@@ -1,6 +1,9 @@
 # helxas
 Python data extraction routines for HelXAS X-ray absorption instrument 
 
+### Dependencies
+Module requires silx, numpy and matplotlib. Easiest way to install them is using pip.
+
 ## Example of use:
 ```python
 from __future__ import division, print_function
