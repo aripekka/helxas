@@ -208,7 +208,7 @@ class HelXAS:
             mca_err = np.zeros((mca.size,1))
             for j in range(mcanos.shape[1]):
                 path = self.mcaprefix + '%05d' % mcanos[i,j] + self.mcasuffix
-                mca_spectrum = mca_spectrum + np.loadtxt.path
+                mca_spectrum = mca_spectrum + np.loadtxt(path)
 
             mca_err = np.sqrt(mca_spectrum)
             if normalization == 'transmission':
