@@ -197,7 +197,7 @@ class HelXAS:
         mcanos = self.scan_groups[sample_str]['signal']['mcano']
 
         #Open a mca file to obtain the number of channels
-        mca = np.loadtxt(mcaprefix + '%05d' % mcanos[0,0] + mcasuffix)
+        mca = np.loadtxt(self.mcaprefix + '%05d' % mcanos[0,0] + self.mcasuffix)
         channels = mca.size
 
         mca_matrix = np.zeros((mca.size,channels))
@@ -207,7 +207,7 @@ class HelXAS:
             mca_spectrum = np.zeros((mca.size,1))
             mca_err = np.zeros((mca.size,1))
             for j in mcanos.shape[1]:
-                path = mcaprefix + '%05d' % mcanos[i,j] + mcasuffix
+                path = self.mcaprefix + '%05d' % mcanos[i,j] + self.mcasuffix
                 mca_spectrum = mca_spectrum + np.loadtxt.path
 
             mca_err = np.sqrt(mca_spectrum)
