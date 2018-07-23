@@ -3,7 +3,7 @@ import os
 
 import numpy as np
 import matplotlib.pyplot as plt
-from silx.io.specfile import SpecFile
+from silx.io.specfile import SpecFile, SfErrColNotFound
 
 def energy(th,xtal,hkl):
     hc = 1239.842
@@ -74,9 +74,17 @@ class HelXAS:
         N0 = np.zeros(theta.shape)     #deadtime corrected signal
         counting_time = np.zeros(theta.shape)   #counting time
 
-        for i in scan_numbers:
-            detector = specfile[str(i)+'.1'].data_column_by_name('Detector')
-            seconds = specfile[str(i)+'.1'].data_column_by_name('Seconds')
+        mcano = np.zeros((theta.size,len(scan_numbers)),dtype=int)
+
+        for i in range(len(scan_numbers)):
+            ind = str(scan_numbers[i])
+            detector = specfile[ind + '.1'].data_column_by_name('Detector')
+            seconds = specfile[ind + '.1'].data_column_by_name('Seconds')
+
+            try:
+                mcano[:,i] = specfile[ind + '.1'].data_column_by_name('mcano')
+            except SfErrColNotFound:
+                mcano[:,i] = -np.ones(theta.size)
 
             N0_raw = N0_raw + detector
             N0 = N0 + self.scintillator_dead_time_correction(detector,seconds)
@@ -85,6 +93,7 @@ class HelXAS:
         scans = {}
         scans['scan_numbers'] = scan_numbers
         scans['theta'] = theta
+        scans['mcano'] = mcano
 
         scans['counts'] = N0
         scans['raw_counts'] = N0_raw
