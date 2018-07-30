@@ -24,7 +24,7 @@ class HelXAS:
     Class for reading and refining the raw data acquired with HelXAS
     '''
 
-    TAU_SCINTILLATOR = 2.8e-6 #deadtime of scintillator in microsecs
+    TAU_SCINTILLATOR = 2.1e-6 #deadtime of scintillator in microsecs
 
     def __init__(self,datafile,datapath='/home/xasadmin/data/',mcadataprefix=None,mcadatasuffix=''):
         self.datapath = datapath
@@ -194,21 +194,27 @@ class HelXAS:
             normalization = None, 'transmission'
         '''
 
+        theta = self.scan_groups[sample_str]['signal']['theta']
         mcanos = self.scan_groups[sample_str]['signal']['mcano']
 
         #Open a mca file to obtain the number of channels
         mca = np.loadtxt(self.mcaprefix + '%05d' % mcanos[0,0] + self.mcasuffix)
         channels = mca.size
 
-        mca_matrix = np.zeros((mca.size,channels))
-        mca_err_matrix = np.zeros((mca.size,channels))
+        mca_matrix = np.zeros((theta.size,channels))
+        mca_err_matrix = np.zeros((theta.size,channels))
+
+        print('Reading MCA. This might take some time..')
 
         for i in range(mcanos.shape[0]):
-            mca_spectrum = np.zeros((mca.size,1))
-            mca_err = np.zeros((mca.size,1))
+            print('Energy ' + str(i+1)+'/'+str(mcanos.shape[0]))
+            mca_spectrum = np.zeros((mca.size,))
+            mca_err = np.zeros((mca.size,))
+
             for j in range(mcanos.shape[1]):
                 path = self.mcaprefix + '%05d' % mcanos[i,j] + self.mcasuffix
-                mca_spectrum = mca_spectrum + np.loadtxt(path)
+                scan = np.loadtxt(path)
+                mca_spectrum = mca_spectrum + scan
 
             mca_err = np.sqrt(mca_spectrum)
             if normalization == 'transmission':
@@ -216,8 +222,8 @@ class HelXAS:
                 mca_spectrum = mca_spectrum/I
                 mca_err = mca_err/I
 
-            mca_matrix[i,:] = mca_spectrum.T
-            mca_err_matrix[i,:] = mca_err.T
+            mca_matrix[i,:] = mca_spectrum
+            mca_err_matrix[i,:] = mca_err
 
         if x_scale == 'theta':
             return theta+self.theta_calibration, mca_matrix, mca_err_matrix
