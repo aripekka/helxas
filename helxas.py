@@ -8,18 +8,22 @@ from silx.io.specfile import SpecFile, SfErrColNotFound
 def energy(th,xtal,hkl):
     hc = 1239.842
     if xtal == 'si':
-        d = 0.5431
+        d = 0.54306
+    elif xtal == 'ge':
+        d = 0.56574
     refl = np.sqrt(np.sum(hkl[0]**2+hkl[1]**2+hkl[2]**2))
     return hc/(2*d*np.sin(np.radians(th)))*refl
 
 def theta(energy,xtal,hkl):
     hc = 1239.842
     if xtal == 'si':
-        d = 0.5431
+        d = 0.54306
+    elif xtal == 'ge':
+        d = 0.56574
     refl = np.sqrt(np.sum(hkl[0]**2+hkl[1]**2+hkl[2]**2))
     return np.degrees(np.arcsin(hc/(2*d*energy)*refl))
 
-class HelXAS:
+class HelXAS(object):
     '''
     Class for reading and refining the raw data acquired with HelXAS
     '''
