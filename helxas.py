@@ -14,7 +14,7 @@ def energy(th,xtal,hkl):
     refl = np.sqrt(np.sum(hkl[0]**2+hkl[1]**2+hkl[2]**2))
     return hc/(2*d*np.sin(np.radians(th)))*refl
 
-def theta(energy,xtal,hkl):
+def braggth(energy,xtal,hkl):
     hc = 1239.842
     if xtal == 'si':
         d = 0.54306
@@ -40,8 +40,44 @@ class HelXAS(object):
         self.background_fit_order = 2
 
         self.analyser = None
-        self.theta_calibration = 0
+        self._theta_calibration = 0
+        self._energy_calibration = 0
         #self.scan_groups['direct_beam'] = {'signal' : None, 'background' : None}
+
+    @property
+    def theta_calibration(self):
+        return self._theta_calibration
+
+    @theta_calibration.setter
+    def theta_calibration(self,deltath):
+        self._theta_calibration = deltath
+
+        if not self.scan_groups == {}:
+            sg_key = list(self.scan_groups.keys())[0] #Picks the 'first' scan group key (Python 2 and 3 compatible)
+            theta_range = self.scan_groups[sg_key]['signal']['theta']
+            theta = (theta_range[0]+theta_range[-1])/2 #calibration at mid scan range
+        else:
+            theta = 75
+
+        self._energy_calibration = energy(theta+deltath,*self.analyser)-energy(theta,*self.analyser)
+
+    @property
+    def energy_calibration(self):
+        return self._energy_calibration
+
+    @energy_calibration.setter
+    def energy_calibration(self,deltaE):
+        self._energy_calibration = deltaE
+
+        if not self.scan_groups == {}:
+            sg_key = list(self.scan_groups.keys())[0] #Picks the 'first' scan group key (Python 2 and 3 compatible)
+            theta_range = self.scan_groups[sg_key]['signal']['theta']
+            theta = (theta_range[0]+theta_range[-1])/2 #calibration at mid scan range
+            E0 = energy(theta,*self.analyser)
+        else:
+            E0 = energy(75,*self.analyser)
+
+        self._theta_calibration = braggth(E0+deltaE,*self.analyser)-energy(E0,*self.analyser)
 
     def set_analyser(self, crystal_str, hkl):
         '''
