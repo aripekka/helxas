@@ -70,7 +70,11 @@ class HelXAS:
         Input: SpecFile instance, list of scan_numbers
         Output: dictionary containing the summed scans
         '''
-        theta = specfile[str(scan_numbers[0])+'.1'].data_column_by_name('Theta')
+        try:
+            theta = specfile[str(scan_numbers[0])+'.1'].data_column_by_name('Bragg angle')
+        except:
+            #Support for the old theta scan files
+            theta = specfile[str(scan_numbers[0])+'.1'].data_column_by_name('Theta')
 
         N0_raw = np.zeros(theta.shape) #raw counts
         N0 = np.zeros(theta.shape)     #deadtime corrected signal
