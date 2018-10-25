@@ -114,7 +114,11 @@ class HelXAS(object):
             theta = specfile[str(scan_numbers[0])+'.1'].data_column_by_name('Bragg angle')
         except:
             #Support for the old theta scan files
-            theta = specfile[str(scan_numbers[0])+'.1'].data_column_by_name('Theta')
+            try:
+                theta = specfile[str(scan_numbers[0])+'.1'].data_column_by_name('Theta')
+            except:
+                theta = braggth(specfile[str(scan_numbers[0])+'.1'].data_column_by_name('Energy'),*self.analyser)
+
 
         N0_raw = np.zeros(theta.shape) #raw counts
         N0 = np.zeros(theta.shape)     #deadtime corrected signal
